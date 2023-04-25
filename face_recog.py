@@ -1,6 +1,82 @@
 import face_recognition
 import cv2
 import numpy as np
+import time
+#from gpiozero import Button
+#from gpiozero import MotionSensor
+
+
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+#from picamera import PiCamera
+
+fromaddr = "megaproject000@gmail.com"
+toaddr = "pankajmdahilkar@gmail.com"
+
+def send_email(message):
+       msg = MIMEMultipart()
+       
+       # storing the senders email address
+       msg['From'] = fromaddr
+       
+       # storing the receivers email address
+       msg['To'] = toaddr
+       
+       # storing the subject
+       msg['Subject'] = "Mail From The Raspberry Pi"
+       
+       # string to store the body of the mail
+       body = " following person at home :  " + message
+       
+       # attach the body with the msg instance
+       msg.attach(MIMEText(body, 'plain'))
+       
+       # open the file to be sent
+       filename = "filename.jpg"
+       attachment = open(filename, "rb")
+       
+       # instance of MIMEBase and named as p
+       p = MIMEBase('application', 'octet-stream')
+       
+       # To change the payload into encoded form
+       p.set_payload((attachment).read())
+       
+       # encode into base64
+       encoders.encode_base64(p)
+       
+       p.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+       
+       # attach the instance 'p' to instance 'msg'
+       msg.attach(p)
+       
+       # creates SMTP session
+       s = smtplib.SMTP('smtp.gmail.com', 587)
+       
+       # start TLS for security
+       s.starttls()
+       
+       # Authentication
+       s.login(fromaddr, "earjgkyrfperupyf")
+       
+       # Converts the Multipart msg into a string
+       text = msg.as_string()
+       
+       # sending the mail
+       s.sendmail(fromaddr, toaddr, text)
+       
+       # terminating the session
+       s.quit()
+       print("mail sent")
+
+
+
+
+
+#button = Button(23)
+#pir = MotionSensor(24)
 
 # This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
 # other example, but it includes some basic performance tweaks to make things run a lot faster:
@@ -15,21 +91,35 @@ import numpy as np
 video_capture = cv2.VideoCapture(0)
 
 # Load a sample picture and learn how to recognize it.
-obama_image = face_recognition.load_image_file("pankaj.JPG")
-obama_face_encoding = face_recognition.face_encodings(obama_image)[0]
+ananya_image = face_recognition.load_image_file("ananya.jpg")
+ananya_face_encoding = face_recognition.face_encodings(ananya_image)[0]
 
-# Load a second sample picture and learn how to recognize it.
-biden_image = face_recognition.load_image_file("shubham.jpg")
-biden_face_encoding = face_recognition.face_encodings(biden_image)[0]
+atit_image = face_recognition.load_image_file("atit.jpg")
+atit_face_encoding = face_recognition.face_encodings(atit_image)[0]
+
+sejal_image = face_recognition.load_image_file("sejal.jpg")
+sejal_face_encoding = face_recognition.face_encodings(sejal_image)[0]
+
+shon_image = face_recognition.load_image_file("shon.jpg")
+shon_face_encoding = face_recognition.face_encodings(shon_image)[0]
+
+vaishnavi_image = face_recognition.load_image_file("vaishnavi.jpg")
+vaishnavi_face_encoding = face_recognition.face_encodings(vaishnavi_image)[0]
 
 # Create arrays of known face encodings and their names
 known_face_encodings = [
-    obama_face_encoding,
-    biden_face_encoding
+    ananya_face_encoding,
+    atit_face_encoding,
+    sejal_face_encoding,
+    shon_face_encoding,
+    vaishnavi_face_encoding
 ]
 known_face_names = [
-    "Pankaj",
-    "Shubham"
+    "Ananya",
+    "Atit",
+    "Sejal",
+    "Shon",
+    "Vaishnavi"
 ]
 
 # Initialize some variables
@@ -72,6 +162,10 @@ while True:
                 name = known_face_names[best_match_index]
 
             face_names.append(name)
+            cv2.imwrite("filename.jpg", frame)
+            
+            send_email(name)
+
 
     process_this_frame = not process_this_frame
 
